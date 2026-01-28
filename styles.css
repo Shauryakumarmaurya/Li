@@ -288,7 +288,7 @@ h4 {
     box-shadow: 0 0 50px rgba(123, 44, 191, 0.5);
     /* Purple Glow */
     opacity: 0;
-    animation: ripple 4s infinite linear;
+    animation: ripple 8s infinite linear;
     /* Center the rings */
     top: 50%;
     left: 50%;
@@ -313,11 +313,11 @@ h4 {
 }
 
 .delay-2 {
-    animation-delay: 1.5s;
+    animation-delay: 2.5s;
 }
 
 .delay-3 {
-    animation-delay: 3s;
+    animation-delay: 5s;
 }
 
 .hero-content {
