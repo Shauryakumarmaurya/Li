@@ -843,6 +843,21 @@ h4 {
         transform: rotate(-45deg) translate(5px, -5px);
     }
 
+    /* Mobile Navbar Logo Fix */
+    .nav-logo {
+        gap: 4px;
+        font-size: 0.9rem;
+    }
+
+    .nav-logo .logo-img {
+        width: 28px;
+        height: 28px;
+    }
+
+    .nav-text {
+        font-size: 0.85rem;
+    }
+
     .hero-stats {
         gap: 24px;
     }
@@ -868,5 +883,51 @@ h4 {
         flex-direction: column;
         align-items: center;
         text-align: center;
+    }
+}
+
+/* Extra small screens */
+@media (max-width: 480px) {
+    .nav-logo {
+        gap: 3px;
+    }
+
+    .nav-logo .logo-img {
+        width: 24px;
+        height: 24px;
+    }
+
+    .nav-text {
+        font-size: 0.75rem;
+    }
+
+    .hero-title {
+        font-size: 1.8rem;
+    }
+
+    .hero-subtitle {
+        font-size: 0.95rem;
+    }
+
+    .hero-stats {
+        flex-direction: column;
+        gap: 16px;
+    }
+
+    .stat-number {
+        font-size: 1.75rem;
+    }
+
+    .section {
+        padding: 60px 0;
+    }
+
+    .section-title {
+        font-size: 1.5rem;
+    }
+
+    .btn {
+        padding: 12px 20px;
+        font-size: 0.9rem;
     }
 }
