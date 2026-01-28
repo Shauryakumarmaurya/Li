@@ -298,6 +298,32 @@ h4 {
     color: var(--white);
 }
 
+/* Event Details in Hero */
+.event-details {
+    display: flex;
+    gap: 24px;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-bottom: 24px;
+    animation: fadeInUp 0.6s ease 0.5s both;
+}
+
+.event-detail {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 20px;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 50px;
+    font-size: 1rem;
+    font-weight: 500;
+}
+
+.event-detail span {
+    font-size: 1.2rem;
+}
+
 .highlight {
     color: var(--accent);
     font-weight: 700;
@@ -661,6 +687,28 @@ h4 {
     color: var(--primary);
     font-size: 1.5rem;
     font-weight: 700;
+}
+
+.prize-special {
+    margin-top: 24px;
+    padding: 16px 24px;
+    background: linear-gradient(135deg, rgba(99, 102, 241, 0.15), rgba(139, 92, 246, 0.1));
+    border: 1px solid rgba(99, 102, 241, 0.3);
+    border-radius: var(--radius-sm);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    text-align: left;
+}
+
+.prize-special span {
+    font-size: 2rem;
+}
+
+.prize-special p {
+    color: var(--light);
+    font-size: 0.95rem;
+    margin: 0;
 }
 
 /* Registration Section */
