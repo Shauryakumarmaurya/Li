@@ -62,16 +62,53 @@ document.querySelectorAll('.about-grid, .learn-grid, .req-grid').forEach(grid =>
     });
 });
 
-// Form submission handler
-registrationForm.addEventListener('submit', (e) => {
-    e.preventDefault();
-    const formData = new FormData(registrationForm);
-    const data = Object.fromEntries(formData);
-    console.log('Registration data:', data);
-    
-    // Show success modal
-    successModal.classList.add('active');
-    registrationForm.reset();
+// ============================================
+// SUPABASE CONFIGURATION
+// ============================================
+const SUPABASE_URL = 'https://gucbamtgrxaqftkrkjzn.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_nUTIIYlr4B4_lieYTMdz9A_Jn0eg5za';
+const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+// ============================================
+// REGISTRATION FORM HANDLER
+// ============================================
+registrationForm.addEventListener('submit', async function (event) {
+    // CRITICAL: Prevent page reload
+    event.preventDefault();
+
+    // Get form field values
+    const studentName = document.getElementById('student-name').value.trim();
+    const email = document.getElementById('email').value.trim();
+    const phoneNumber = document.getElementById('phone').value.trim();
+    const schoolName = document.getElementById('school-name').value.trim();
+    const classGrade = document.getElementById('class').value;
+
+    // Build data object with EXACT column names (snake_case)
+    const formData = {
+        student_name: studentName,
+        email: email,
+        phone_number: phoneNumber,
+        school_name: schoolName,
+        class_grade: classGrade
+    };
+
+    console.log('Sending to Supabase:', formData);
+
+    // Insert into Supabase
+    const { data, error } = await supabase
+        .from('registrations')
+        .insert([formData]);
+
+    // Handle response
+    if (error) {
+        console.error('Supabase Error:', error);
+        alert('ERROR: ' + error.message);
+    } else {
+        console.log('Success:', data);
+        alert('SUCCESS: Data sent to Supabase');
+        registrationForm.reset();
+        successModal.classList.add('active');
+    }
 });
 
 // Close modal
@@ -88,7 +125,7 @@ successModal.addEventListener('click', (e) => {
 
 // Smooth scroll for anchor links
 document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-    anchor.addEventListener('click', function(e) {
+    anchor.addEventListener('click', function (e) {
         e.preventDefault();
         const target = document.querySelector(this.getAttribute('href'));
         if (target) {
