@@ -369,13 +369,42 @@ h4 {
 .event-detail {
     display: flex;
     align-items: center;
-    gap: 8px;
-    padding: 12px 20px;
-    background: rgba(255, 255, 255, 0.08);
-    border: 1px solid rgba(255, 255, 255, 0.15);
+    gap: 12px;
+    padding: 12px 24px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: 50px;
-    font-size: 1rem;
-    font-weight: 500;
+    backdrop-filter: blur(10px);
+    width: fit-content;
+    transition: all 0.3s ease;
+}
+
+/* Location Button Interactive Styles */
+.location-btn {
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.location-btn:hover {
+    background: rgba(0, 180, 216, 0.2);
+    border-color: #00b4d8;
+    box-shadow: 0 0 15px rgba(0, 180, 216, 0.4);
+    transform: translateY(-3px);
+}
+
+.location-btn:hover span {
+    display: inline-block;
+    animation: bouncePin 0.6s infinite alternate;
+}
+
+@keyframes bouncePin {
+    from {
+        transform: translateY(0);
+    }
+
+    to {
+        transform: translateY(-3px);
+    }
 }
 
 .event-detail span {
