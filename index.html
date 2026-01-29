@@ -15,25 +15,186 @@
 </head>
 
 <body>
-    <nav class="navbar" id="navbar">
-        <div class="nav-container">
-            <a href="#" class="nav-logo">
-                <img src="logo.png" alt="BSP Logo" class="logo-img">
-                <span class="nav-text">BSP, IIT Delhi</span>
-                <span class="nav-text nav-x">x</span>
-                <img src="witblox-logo.png" alt="WitBlox Logo" class="logo-img">
-                <span class="nav-text">WitBlox</span>
+    <nav class="navbar">
+        <div class="nav-container"
+            style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+
+            <a href="#" class="nav-logo"
+                style="display: flex; align-items: center; gap: 5px; text-decoration: none; color: white; font-weight: 700; font-size: 1rem;">
+                <img src="logo.png" class="logo-img" alt="BSP Logo"
+                    style="height: 30px; border-radius: 5px; margin-right: 5px;">
+                <span>BSP, IIT Delhi x</span>
+                <img src="witblox-logo.png" class="logo-img" alt="WitBlox Logo"
+                    style="height: 30px; border-radius: 5px; margin: 0 5px;">
+                <span>WitBlox</span>
             </a>
+
             <ul class="nav-menu" id="nav-menu">
                 <li><a href="#about" class="nav-link">About</a></li>
                 <li><a href="#learn" class="nav-link">Learn</a></li>
                 <li><a href="#demo" class="nav-link">Demo</a></li>
                 <li><a href="#prizes" class="nav-link">Prizes</a></li>
-                <li><a href="#register" class="nav-link nav-cta">Register Now</a></li>
+                <li><a href="#register" class="nav-link nav-cta"
+                        style="background: linear-gradient(135deg, #7b2cbf, #00b4d8); padding: 8px 20px; border-radius: 20px; color: #ffffff !important;">Register
+                        Now</a></li>
             </ul>
-            <button class="nav-toggle" id="nav-toggle"><span></span><span></span><span></span></button>
+
+            <div class="nav-toggle" id="nav-toggle"
+                style="cursor: pointer; display: none; position: relative; width: 30px; height: 24px;">
+                <div class="line line1"
+                    style="width: 100%; height: 3px; background: white; position: absolute; top: 0; left: 0; transition: all 0.3s ease;">
+                </div>
+                <div class="line line2"
+                    style="width: 100%; height: 3px; background: white; position: absolute; top: 50%; left: 0; transform: translateY(-50%); transition: all 0.3s ease;">
+                </div>
+                <div class="line line3"
+                    style="width: 100%; height: 3px; background: white; position: absolute; bottom: 0; left: 0; transition: all 0.3s ease;">
+                </div>
+            </div>
         </div>
     </nav>
+
+    <style>
+        /* Navbar Base Styles */
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            padding: 1rem 5%;
+            background: rgba(15, 16, 32, 0.95);
+            backdrop-filter: blur(10px);
+            z-index: 1000;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            transition: top 0.3s ease;
+        }
+
+        .nav-menu {
+            display: flex;
+            gap: 30px;
+            list-style: none;
+            align-items: center;
+            margin: 0;
+            padding: 0;
+        }
+
+        .nav-link {
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            font-size: 1rem;
+            transition: 0.3s;
+        }
+
+        .nav-link:hover {
+            color: #00b4d8;
+        }
+
+        /* MOBILE ONLY STYLES */
+        @media (max-width: 768px) {
+            .nav-toggle {
+                display: block !important;
+            }
+
+            /* Show Hamburger */
+
+            .nav-menu {
+                display: none;
+                /* Hide menu by default */
+                flex-direction: column;
+                position: absolute;
+                top: 100%;
+                /* Push below navbar */
+                left: 0;
+                width: 100%;
+                background: #0f1020;
+                /* Dark Background */
+                padding: 30px 0;
+                border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+                text-align: center;
+                gap: 25px;
+                box-shadow: 0 10px 20px rgba(0, 0, 0, 0.5);
+            }
+
+            /* This class is added by JS to show the menu */
+            .nav-menu.active {
+                display: flex;
+            }
+
+            /* Hamburger Animation Check */
+            .nav-toggle .line {
+                border-radius: 2px;
+                transform-origin: center;
+            }
+
+            .nav-toggle.active .line1 {
+                top: 50%;
+                transform: translateY(-50%) rotate(45deg) scale(0.9);
+            }
+
+            .nav-toggle.active .line2 {
+                opacity: 0;
+            }
+
+            .nav-toggle.active .line3 {
+                bottom: auto;
+                top: 50%;
+                transform: translateY(-50%) rotate(-45deg) scale(0.9);
+            }
+        }
+    </style>
+
+    <script>
+        // DIRECT SCRIPT TO MAKE IT CLICKABLE
+        (function () {
+            const toggleBtn = document.getElementById('nav-toggle');
+            const menu = document.getElementById('nav-menu');
+
+            if (toggleBtn && menu) {
+                toggleBtn.addEventListener('click', function () {
+                    // Toggle the 'active' class on the menu
+                    if (menu.style.display === 'flex') {
+                        menu.style.display = 'none';
+                        menu.classList.remove('active');
+                        toggleBtn.classList.remove('active');
+                    } else {
+                        menu.style.display = 'flex';
+                        menu.classList.add('active');
+                        toggleBtn.classList.add('active');
+                    }
+                });
+            }
+
+            // Auto-close menu when a nav link is clicked (mobile only)
+            const navLinks = document.querySelectorAll('.nav-link');
+            navLinks.forEach(function (link) {
+                link.addEventListener('click', function () {
+                    // Check if on mobile screen
+                    if (window.innerWidth <= 768 && menu) {
+                        menu.style.display = 'none';
+                        menu.classList.remove('active');
+                        toggleBtn.classList.remove('active');
+                    }
+                });
+            });
+
+            // Auto-hide Navbar on Scroll
+            let lastScrollTop = 0;
+            const navbar = document.querySelector('.navbar');
+
+            window.addEventListener('scroll', function () {
+                let scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+
+                if (scrollTop > lastScrollTop) {
+                    // Scroll Down - Hide Navbar
+                    navbar.style.top = '-100px';
+                } else {
+                    // Scroll Up - Show Navbar
+                    navbar.style.top = '0';
+                }
+                lastScrollTop = scrollTop;
+            });
+        })();
+    </script>
 
     <section class="hero" id="hero">
         <div class="hero-bg">
@@ -46,28 +207,34 @@
             <div class="pulse-ring delay-3"></div>
         </div>
         <div class="hero-content">
-            <div class="hero-badge"><span>🚀</span><span>BSP, IIT Delhi</span></div>
-            <h1 class="hero-title">AI & Computer Vision<br><span class="gradient-text">Workshop +
-                    Hackathon</span><br>for School Students</h1>
-            <p class="hero-subtitle">Learn <strong>Face Recognition</strong>, <strong>Object Detection</strong> & Build
-                Real AI Projects!</p>
+            <div class="hero-badge"><span>🎓</span><span>BSP, IIT Delhi</span></div>
+            <h1 class="hero-title">National Level AI & Computer Vision<br><span class="gradient-text">Bootcamp</span>
+            </h1>
+            <p class="hero-subtitle">A <strong>1-Day</strong> intensive training on <strong>Face Recognition</strong>,
+                <strong>Object Detection</strong>, and <strong>Embedded AI</strong> for school students.
+            </p>
             <div class="event-details">
-                <div class="event-detail"><span>📅</span> 7th - 8th February 2026</div>
-                <div class="event-detail"><span>📍</span> LH 325, IIT Delhi</div>
+                <div class="event-detail"><span>🗓️</span> <strong>7th/8th February 2026</strong></div>
+                <a href="https://www.google.com/maps/search/?api=1&query=Lecture+Hall+Complex+IIT+Delhi+Hauz+Khas+110016"
+                    target="_blank" class="event-detail" style="text-decoration: none; color: white;"><span>📍</span>
+                    <strong>LH 325, IIT Delhi</strong></a>
             </div>
             <div class="hero-buttons">
-                <a href="#register" class="btn btn-primary">Register Now →</a>
-                <a href="#demo" class="btn btn-secondary">▶ Watch Demo</a>
+                <a href="#register" class="btn btn-primary">Secure Seat →</a>
             </div>
-            <div class="hero-stats">
-                <div class="stat"><span class="stat-number">3+2</span><span class="stat-label">Hours</span></div>
-                <div class="stat"><span class="stat-number">4+</span><span class="stat-label">AI Projects</span></div>
-                <div class="stat"><span class="stat-number">₹17K</span><span class="stat-label">In Prizes</span></div>
+            <div class="hero-bottom">
+                <div class="hero-stats">
+                    <div class="stat"><span class="stat-number">3+2</span><span class="stat-label">Hours</span></div>
+                    <div class="stat"><span class="stat-number">4+</span><span class="stat-label">AI Projects</span>
+                    </div>
+                    <div class="stat"><span class="stat-number">₹17K</span><span class="stat-label">In Prizes</span>
+                    </div>
+                </div>
+                <a href="#register" class="scroll-indicator">
+                    <span>Scroll Down</span>
+                    <div class="scroll-arrow"></div>
+                </a>
             </div>
-        </div>
-        <div class="scroll-indicator">
-            <span>Scroll Down</span>
-            <div class="scroll-arrow"></div>
         </div>
     </section>
 
@@ -75,7 +242,7 @@
         <div class="container">
             <div class="section-header">
                 <span class="section-tag">About The Event</span>
-                <h2 class="section-title">Experience the Future of <span class="gradient-text">AI Learning</span></h2>
+                <h2 class="section-title">A Hands-On Approach to <span class="gradient-text">AI Engineering</span></h2>
             </div>
             <div class="about-grid">
                 <div class="about-card">
@@ -86,7 +253,7 @@
                 <div class="about-card">
                     <div class="about-icon">⏱️</div>
                     <h3>3-Hour Workshop + 2-Hour Hackathon</h3>
-                    <p>Hands-on Learning & Competition</p>
+                    <p>Structured Training & Engineering Competition</p>
                 </div>
                 <div class="about-card">
                     <div class="about-icon">🍽️</div>
@@ -96,7 +263,7 @@
                 <div class="about-card">
                     <div class="about-icon">🎮</div>
                     <h3>WitBlox AI CAM Kit</h3>
-                    <p>Build AI projects with cutting-edge kits</p>
+                    <p>Deploy AI projects with industry-grade hardware</p>
                 </div>
             </div>
         </div>
@@ -106,28 +273,28 @@
         <div class="container">
             <div class="section-header">
                 <span class="section-tag">Curriculum</span>
-                <h2 class="section-title">What Students Will <span class="gradient-text">Learn</span></h2>
+                <h2 class="section-title">What Students Will <span class="gradient-text">Build</span></h2>
             </div>
             <div class="learn-grid">
                 <div class="learn-card">
                     <div class="learn-icon">👤</div>
                     <h3>Face Recognition</h3>
-                    <p>Build systems that identify human faces</p>
+                    <p>Engineer systems that identify and verify human faces</p>
                 </div>
                 <div class="learn-card">
                     <div class="learn-icon">📷</div>
                     <h3>Object Detection</h3>
-                    <p>Identify and locate multiple objects</p>
+                    <p>Program models to detect and classify multiple objects</p>
                 </div>
                 <div class="learn-card">
                     <div class="learn-icon">👁️</div>
                     <h3>Computer Vision</h3>
-                    <p>How machines interpret visual data</p>
+                    <p>Deploy vision pipelines for real-time image processing</p>
                 </div>
                 <div class="learn-card">
                     <div class="learn-icon">🧠</div>
-                    <h3>AI & ML Basics</h3>
-                    <p>Fundamentals of AI and Machine Learning</p>
+                    <h3>AI & ML Fundamentals</h3>
+                    <p>Core principles of neural networks and inference</p>
                 </div>
             </div>
         </div>
@@ -137,7 +304,7 @@
         <div class="container">
             <div class="section-header">
                 <span class="section-tag">Preview</span>
-                <h2 class="section-title">See What You <span class="gradient-text">Will Build</span></h2>
+                <h2 class="section-title">Preview the <span class="gradient-text">Project Syllabus</span></h2>
             </div>
             <div class="video-wrapper">
                 <div class="video-container">
@@ -161,35 +328,35 @@
                     <div class="timeline-num">01</div>
                     <div class="timeline-content">
                         <h3>🎓 Introduction to AI</h3>
-                        <p>Learn the basics</p>
+                        <p>Core concepts and architecture</p>
                     </div>
                 </div>
                 <div class="timeline-item">
                     <div class="timeline-num">02</div>
                     <div class="timeline-content">
                         <h3>🛠️ Hands-on Training</h3>
-                        <p>Get familiar with kits</p>
+                        <p>Hardware setup and configuration</p>
                     </div>
                 </div>
                 <div class="timeline-item">
                     <div class="timeline-num">03</div>
                     <div class="timeline-content">
                         <h3>🔧 Build AI Projects</h3>
-                        <p>Create your own projects</p>
+                        <p>Program and deploy your models</p>
                     </div>
                 </div>
                 <div class="timeline-item">
                     <div class="timeline-num">04</div>
                     <div class="timeline-content">
                         <h3>⚡ Hackathon Challenge</h3>
-                        <p>Compete with others</p>
+                        <p>Engineering competition with peers</p>
                     </div>
                 </div>
                 <div class="timeline-item">
                     <div class="timeline-num">05</div>
                     <div class="timeline-content">
                         <h3>🏆 Winner Announcement</h3>
-                        <p>Win amazing prizes!</p>
+                        <p>Recognition and awards ceremony</p>
                     </div>
                 </div>
             </div>
@@ -227,10 +394,10 @@
                     <span class="section-tag">Join Us</span>
                     <h2 class="section-title">Register for the <span class="gradient-text">Workshop</span></h2>
                     <ul class="benefits">
-                        <li>✓ Hands-on AI Experience</li>
-                        <li>✓ Certificate of Participation</li>
-                        <li>✓ Expert Guidance from IIT Delhi</li>
-                        <li>✓ Win Exciting Prizes</li>
+                        <li>✓ Hands-on AI Engineering Experience</li>
+                        <li>✓ Certificate of Completion</li>
+                        <li>✓ Expert Mentorship from IIT Delhi</li>
+                        <li>✓ Industry-Grade Hardware Training</li>
                     </ul>
                 </div>
                 <form class="register-form" id="registration-form">
@@ -269,7 +436,7 @@
             <div class="footer-content">
                 <div class="footer-brand"><img src="logo.png" alt="BSP Logo" class="logo-img"><span>BSP, IIT Delhi x
                         WitBlox</span>
-                    <p>Empowering young minds with AI education</p>
+                    <p>Training the next generation of AI engineers</p>
                 </div>
                 <div class="footer-links"><a href="#about">About</a><a href="#learn">Learn</a><a href="#demo">Demo</a><a
                         href="#register">Register</a></div>

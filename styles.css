@@ -200,9 +200,8 @@ h4 {
 }
 
 .nav-cta {
-    background: var(--gradient);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
+    color: #ffffff !important;
+    -webkit-text-fill-color: #ffffff !important;
 }
 
 .nav-toggle {
@@ -267,43 +266,43 @@ h4 {
     }
 }
 
-/* Radiating Pulse Effect */
+/* Radiating Pulse Effect - Mobile Optimized */
 .pulse-container {
     position: absolute;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    z-index: 1;
+    z-index: 0;
     pointer-events: none;
+    width: 0;
+    height: 0;
 }
 
 .pulse-ring {
     position: absolute;
-    width: 600px;
-    height: 600px;
+    width: 50vmax;
+    height: 50vmax;
     border-radius: 50%;
     background: transparent;
-    border: 2px solid rgba(0, 180, 216, 0.5);
-    /* Bright Cyan Border */
-    box-shadow: 0 0 50px rgba(123, 44, 191, 0.5);
-    /* Purple Glow */
+    border: 2px solid rgba(0, 180, 216, 0.4);
+    box-shadow: 0 0 20px rgba(0, 180, 216, 0.4);
     opacity: 0;
-    animation: ripple 8s infinite linear;
-    /* Center the rings */
+    animation: ripple 12s infinite linear;
     top: 50%;
     left: 50%;
-    margin-left: -300px;
-    margin-top: -300px;
+    transform: translate(-50%, -50%);
 }
 
 @keyframes ripple {
     0% {
-        transform: scale(0.1);
+        width: 0;
+        height: 0;
         opacity: 1;
     }
 
     100% {
-        transform: scale(2.0);
+        width: 150vmax;
+        height: 150vmax;
         opacity: 0;
     }
 }
@@ -313,11 +312,11 @@ h4 {
 }
 
 .delay-2 {
-    animation-delay: 2.5s;
+    animation-delay: 4s;
 }
 
 .delay-3 {
-    animation-delay: 5s;
+    animation-delay: 8s;
 }
 
 .hero-content {
@@ -348,7 +347,8 @@ h4 {
     font-size: clamp(1rem, 2.5vw, 1.25rem);
     color: var(--gray);
     max-width: 700px;
-    margin-bottom: 32px;
+    margin: 0 auto 32px;
+    text-align: center;
     animation: fadeInUp 0.6s ease 0.4s both;
 }
 
@@ -395,11 +395,19 @@ h4 {
     animation: fadeInUp 0.6s ease 0.6s both;
 }
 
+/* Hero Bottom Container */
+.hero-bottom {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 48px;
+    animation: fadeInUp 0.6s ease 0.8s both;
+}
+
 .hero-stats {
     display: flex;
     gap: 48px;
-    margin-top: 48px;
-    animation: fadeInUp 0.6s ease 0.8s both;
+    justify-content: center;
 }
 
 .stat {
@@ -436,12 +444,11 @@ h4 {
 
 /* Scroll Indicator */
 .scroll-indicator {
-    position: absolute;
-    bottom: 40px;
-    left: 50%;
-    transform: translateX(-50%);
-    text-align: center;
-    animation: fadeInUp 0.6s ease 1s both;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 32px;
+    text-decoration: none;
     cursor: pointer;
 }
 
@@ -509,7 +516,7 @@ h4 {
 
 .about-card {
     background: linear-gradient(145deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.02));
-    border: 1px solid rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.15);
     border-radius: var(--radius);
     padding: 32px;
     text-align: center;
@@ -550,7 +557,7 @@ h4 {
 
 .learn-card {
     background: rgba(255, 255, 255, 0.03);
-    border: 1px solid rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.15);
     border-radius: var(--radius);
     padding: 32px;
     position: relative;
@@ -639,7 +646,7 @@ h4 {
 
 .timeline-content {
     background: rgba(255, 255, 255, 0.03);
-    border: 1px solid rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.15);
     border-radius: var(--radius-sm);
     padding: 20px 24px;
     flex: 1;
@@ -668,7 +675,7 @@ h4 {
 
 .req-card {
     background: rgba(255, 255, 255, 0.03);
-    border: 1px solid rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.15);
     border-radius: var(--radius-sm);
     padding: 24px;
     text-align: center;
@@ -816,7 +823,7 @@ h4 {
 
 .register-form {
     background: linear-gradient(145deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.02));
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.15);
     border-radius: var(--radius);
     padding: 32px;
 }
@@ -992,21 +999,35 @@ h4 {
     }
 
     .nav-menu {
-        position: fixed;
-        top: 0;
-        right: -100%;
-        width: 280px;
-        height: 100vh;
+        display: none;
+        position: absolute;
+        top: 100%;
+        left: 0;
+        width: 100%;
         background: var(--dark-light);
         flex-direction: column;
-        padding: 80px 32px 32px;
-        gap: 24px;
-        transition: right 0.3s ease;
+        padding: 24px;
+        gap: 16px;
         z-index: 1000;
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        animation: slideDown 0.3s ease;
+    }
+
+    @keyframes slideDown {
+        from {
+            opacity: 0;
+            transform: translateY(-10px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
     }
 
     .nav-menu.active {
-        right: 0;
+        display: flex;
     }
 
     .nav-toggle {
