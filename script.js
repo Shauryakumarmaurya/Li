@@ -18,49 +18,52 @@ try {
 
 // --- THE MAIN FUNCTION ---
 async function handleRegister(event) {
-    // 1. STOP THE REFRESH (Crucial Step)
     event.preventDefault();
-    console.log("🛑 Refresh Stopped. Starting Logic...");
+    console.log("2. Button Clicked");
 
     const btn = document.querySelector('button[type="submit"]');
-    const originalText = btn.innerText;
     btn.innerText = "Processing...";
     btn.disabled = true;
 
     try {
-        // 2. Collect Data
-        // NOTE: Adjusted IDs to match index.html
-        const name = document.getElementById('student-name')?.value;
-        const email = document.getElementById('email')?.value;
-        const phone = document.getElementById('phone')?.value;
-        const city = document.getElementById('city')?.value || "";
-        const studentClass = document.getElementById('class')?.value || "";
-        const schoolName = document.getElementById('school-name')?.value || "";
+        // 1. Get Data from HTML
+        const name = document.getElementById('student-name').value;
+        const schoolName = document.getElementById('school-name').value;
+        const email = document.getElementById('email').value;
+        const phone = document.getElementById('phone').value;
+        const city = document.getElementById('city').value;
+        const studentClass = document.getElementById('class').value;
 
-        if (!supabaseClient) throw new Error("Supabase SDK not initialized");
+        if (!name || !email || !phone) {
+            throw new Error("Please fill in all fields.");
+        }
 
-        // 3. Save to Supabase
+        // 2. Insert into Supabase (USING CORRECT COLUMN NAMES)
+        console.log("3. Saving User...");
         const { data, error } = await supabaseClient
             .from('registrations')
             .insert([{
-                name: name, email: email, phone: phone,
-                city: city, class: studentClass, school_name: schoolName,
-                payment_status: 'pending'
+                student_name: name,       // ✅ Matches 'student_name' column
+                email: email,
+                phone_number: phone,      // ✅ Matches 'phone_number' column
+                city: city,
+                class_grade: studentClass,// ✅ Matches 'class_grade' column
+                school_name: schoolName,
+                payment_status: 'pending' // ✅ Defaults to pending
             }])
             .select()
             .single();
 
         if (error) throw error;
 
-        console.log("✅ User Saved. Starting Payment...");
-
-        // 4. Start Payment
+        // 3. Start Payment with the ID we just created
+        console.log("User saved with ID:", data.id);
         await startPayment(data.id, name, email, phone);
 
     } catch (err) {
         console.error(err);
         alert("Error: " + err.message);
-        btn.innerText = originalText;
+        btn.innerText = "Register for Workshop →";
         btn.disabled = false;
     }
 }

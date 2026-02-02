@@ -76,24 +76,25 @@ serve(async (req) => {
                 .join('');
 
             if (signatureHex === signature) {
-                // Generate Unique Code
+                // 1. Generate Unique Code (e.g., BSP-2026-105)
                 const uniqueCode = `BSP-2026-${studentId}`;
 
-                // Update database
+                // 2. Update the Database (Mark as Success)
                 const { error } = await supabase
                     .from('registrations')
                     .update({
-                        payment_status: 'PAID',
-                        payment_id: paymentId,
-                        unique_code: uniqueCode
+                        payment_status: 'success',  // ✅ Updates from 'pending' to 'success'
+                        payment_id: paymentId,      // ✅ Saves Razorpay Payment ID
+                        unique_code: uniqueCode     // ✅ Saves the Ticket Code
                     })
-                    .eq('id', studentId)
+                    .eq('id', studentId);
 
-                if (error) throw error
+                if (error) throw error;
 
-                return new Response(JSON.stringify({ status: 'success', uniqueCode: uniqueCode }), {
-                    headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
-                })
+                return new Response(
+                    JSON.stringify({ status: "success", uniqueCode: uniqueCode }),
+                    { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+                );
             } else {
                 return new Response(JSON.stringify({ status: 'failure', message: 'Invalid signature' }), {
                     status: 400,
