@@ -12,6 +12,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap"
         rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
+    <!-- Razorpay script moved to body -->
 </head>
 
 <body>
@@ -387,7 +388,7 @@
                         <li>✓ Industry-Grade Hardware Training</li>
                     </ul>
                 </div>
-                <form class="register-form" id="registration-form">
+                <form class="register-form" id="register-form" onsubmit="handleRegister(event)">
                     <div class="form-group"><label for="student-name">Student Name</label><input type="text"
                             id="student-name" name="studentName" required></div>
                     <div class="form-group"><label for="school-name">School Name</label><input type="text"
@@ -438,85 +439,17 @@
         <div class="modal-content">
             <div class="modal-icon">✅</div>
             <h3>Registration Successful!</h3>
-            <p>We'll contact you soon with details.</p><button class="btn btn-primary" id="modal-close">Got it!</button>
+            <p>Your Ticket ID: <strong id="modal-ticket-id">generating...</strong></p>
+            <p>Check your email for details.</p>
+            <button class="btn btn-primary" id="modal-close">Got it!</button>
         </div>
     </div>
 
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="script.js"></script>
     <script>
-        // Wait for DOM to be fully loaded
-        document.addEventListener('DOMContentLoaded', function () {
-            console.log("DOM loaded, setting up form...");
-
-            // 1. Initialize Supabase
-            const supabaseUrl = 'https://gucbamtgrxaqftkrkjzn.supabase.co';
-            const supabaseKey = 'sb_publishable_nUTIIYlr4B4_lieYTMdz9A_Jn0eg5za';
-            const supabaseClient = window.supabase.createClient(supabaseUrl, supabaseKey);
-            console.log("Supabase client created");
-
-            // 2. Get the form element
-            const form = document.getElementById('registration-form');
-
-            if (!form) {
-                console.error("Form not found!");
-                return;
-            }
-            console.log("Form found:", form);
-
-            // 3. Attach submit handler using onsubmit (more reliable than addEventListener)
-            form.onsubmit = async function (event) {
-                event.preventDefault(); // CRITICAL: Stop page reload
-                event.stopPropagation();
-                console.log("Form submitted, preventDefault called");
-
-                // Get values
-                const nameVal = document.getElementById('student-name').value;
-                const schoolVal = document.getElementById('school-name').value;
-                const classVal = document.getElementById('class').value;
-                const phoneVal = document.getElementById('phone').value;
-                const emailVal = document.getElementById('email').value;
-
-                console.log("Data to insert:", { nameVal, schoolVal, classVal, phoneVal, emailVal });
-
-                // Send to Supabase
-                try {
-                    const { data, error } = await supabaseClient
-                        .from('registrations')
-                        .insert([
-                            {
-                                student_name: nameVal,
-                                school_name: schoolVal,
-                                class_grade: classVal,
-                                phone_number: phoneVal,
-                                email: emailVal
-                            }
-                        ]);
-
-                    // Handle Result
-                    if (error) {
-                        console.error("Supabase Error:", error);
-                        alert("Error: " + error.message);
-                    } else {
-                        console.log("Success:", data);
-                        form.reset();
-                        document.getElementById('success-modal').style.display = 'flex';
-                    }
-                } catch (err) {
-                    console.error("Catch error:", err);
-                    alert("Error: " + err.message);
-                }
-
-                return false; // Extra safety to prevent form submission
-            };
-
-            console.log("Form onsubmit handler attached!");
-
-            // Close modal logic
-            document.getElementById('modal-close').onclick = function () {
-                document.getElementById('success-modal').style.display = 'none';
-            };
-        });
+        // DOM loaded check already in script.js if needed or we rely on defer/bottom placement
     </script>
 </body>
 

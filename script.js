@@ -1,183 +1,160 @@
-// DOM Elements
-const navbar = document.getElementById('navbar');
-const navToggle = document.getElementById('nav-toggle');
-const navMenu = document.getElementById('nav-menu');
-const registrationForm = document.getElementById('registration-form');
-const successModal = document.getElementById('success-modal');
-const modalClose = document.getElementById('modal-close');
+// --- CONFIGURATION ---
+const supabaseUrl = 'https://ooqdipxxtiqmkwbpgmtn.supabase.co';
+const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9vcWRpcHh4dGlxbWt3YnBnbXRuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njg0MDE3MTcsImV4cCI6MjA4Mzk3NzcxN30.NNd4TXZC6RhVucT3LxfecNu2AXofmLDEIUipj9RmxXM';
+const FUNCTION_URL = `${supabaseUrl}/functions/v1/payment-handler`;
+const RAZORPAY_KEY_ID = "rzp_live_SBHWG9Cel0iWs5";
 
-// Mobile Navigation Toggle
-navToggle.addEventListener('click', () => {
-    navToggle.classList.toggle('active');
-    navMenu.classList.toggle('active');
-});
-
-// Close mobile menu when clicking a link
-document.querySelectorAll('.nav-link').forEach(link => {
-    link.addEventListener('click', () => {
-        navToggle.classList.remove('active');
-        navMenu.classList.remove('active');
-    });
-});
-
-// Navbar scroll effect
-let lastScroll = 0;
-window.addEventListener('scroll', () => {
-    const currentScroll = window.pageYOffset;
-    if (currentScroll > 100) {
-        navbar.style.background = 'rgba(15, 23, 42, 0.95)';
-        navbar.style.boxShadow = '0 4px 20px rgba(0, 0, 0, 0.3)';
+// Initialize Supabase
+let supabaseClient;
+try {
+    if (window.supabase) {
+        supabaseClient = window.supabase.createClient(supabaseUrl, supabaseKey);
     } else {
-        navbar.style.background = 'rgba(15, 23, 42, 0.8)';
-        navbar.style.boxShadow = 'none';
+        console.error("Supabase SDK not loaded");
     }
-    lastScroll = currentScroll;
-});
+} catch (e) {
+    console.error("Supabase init error", e);
+}
 
-// Intersection Observer for scroll animations
-const observerOptions = { threshold: 0.1, rootMargin: '0px 0px -50px 0px' };
-const observer = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-        if (entry.isIntersecting) {
-            entry.target.classList.add('animate-visible');
-            entry.target.style.opacity = '1';
-            entry.target.style.transform = 'translateY(0)';
-        }
-    });
-}, observerOptions);
-
-// Apply initial styles and observe elements
-document.querySelectorAll('.about-card, .learn-card, .timeline-item, .req-card, .prize-box, .register-form, .video-wrapper, .cta-content').forEach(el => {
-    el.style.opacity = '0';
-    el.style.transform = 'translateY(30px)';
-    el.style.transition = 'all 0.6s ease';
-    observer.observe(el);
-});
-
-// Stagger animation for grid items
-document.querySelectorAll('.about-grid, .learn-grid, .req-grid').forEach(grid => {
-    const items = grid.children;
-    Array.from(items).forEach((item, index) => {
-        item.style.transitionDelay = `${index * 0.1}s`;
-    });
-});
-
-// ============================================
-// SUPABASE CONFIGURATION
-// ============================================
-const SUPABASE_URL = 'https://gucbamtgrxaqftkrkjzn.supabase.co';
-const SUPABASE_KEY = 'sb_publishable_nUTIIYlr4B4_lieYTMdz9A_Jn0eg5za';
-const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-
-// ============================================
-// REGISTRATION FORM HANDLER
-// ============================================
-registrationForm.addEventListener('submit', async function (event) {
-    // CRITICAL: Prevent page reload
+// --- THE MAIN FUNCTION ---
+async function handleRegister(event) {
+    // 1. STOP THE REFRESH (Crucial Step)
     event.preventDefault();
+    console.log("🛑 Refresh Stopped. Starting Logic...");
 
-    // Get form field values
-    const studentName = document.getElementById('student-name').value.trim();
-    const email = document.getElementById('email').value.trim();
-    const phoneNumber = document.getElementById('phone').value.trim();
-    const schoolName = document.getElementById('school-name').value.trim();
-    const classGrade = document.getElementById('class').value;
+    const btn = document.querySelector('button[type="submit"]');
+    const originalText = btn.innerText;
+    btn.innerText = "Processing...";
+    btn.disabled = true;
 
-    // Build data object with EXACT column names (snake_case)
-    const formData = {
-        student_name: studentName,
-        email: email,
-        phone_number: phoneNumber,
-        school_name: schoolName,
-        class_grade: classGrade
-    };
+    try {
+        // 2. Collect Data
+        // NOTE: Adjusted IDs to match index.html
+        const name = document.getElementById('student-name')?.value;
+        const email = document.getElementById('email')?.value;
+        const phone = document.getElementById('phone')?.value;
+        const city = document.getElementById('city')?.value || "";
+        const studentClass = document.getElementById('class')?.value || "";
+        const schoolName = document.getElementById('school-name')?.value || "";
 
-    console.log('Sending to Supabase:', formData);
+        if (!supabaseClient) throw new Error("Supabase SDK not initialized");
 
-    // Insert into Supabase
-    const { data, error } = await supabase
-        .from('registrations')
-        .insert([formData]);
+        // 3. Save to Supabase
+        const { data, error } = await supabaseClient
+            .from('registrations')
+            .insert([{
+                name: name, email: email, phone: phone,
+                city: city, class: studentClass, school_name: schoolName,
+                payment_status: 'pending'
+            }])
+            .select()
+            .single();
 
-    // Handle response
-    if (error) {
-        console.error('Supabase Error:', error);
-        alert('ERROR: ' + error.message);
-    } else {
-        console.log('Success:', data);
-        alert('SUCCESS: Data sent to Supabase');
-        registrationForm.reset();
-        successModal.classList.add('active');
-    }
-});
+        if (error) throw error;
 
-// Close modal
-modalClose.addEventListener('click', () => {
-    successModal.classList.remove('active');
-});
+        console.log("✅ User Saved. Starting Payment...");
 
-// Close modal on outside click
-successModal.addEventListener('click', (e) => {
-    if (e.target === successModal) {
-        successModal.classList.remove('active');
-    }
-});
+        // 4. Start Payment
+        await startPayment(data.id, name, email, phone);
 
-// Smooth scroll for anchor links
-document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-    anchor.addEventListener('click', function (e) {
-        e.preventDefault();
-        const target = document.querySelector(this.getAttribute('href'));
-        if (target) {
-            const offset = 80;
-            const position = target.getBoundingClientRect().top + window.pageYOffset - offset;
-            window.scrollTo({ top: position, behavior: 'smooth' });
-        }
-    });
-});
-
-// Particle animation for hero
-function createParticles() {
-    const particles = document.getElementById('particles');
-    if (!particles) return;
-    for (let i = 0; i < 50; i++) {
-        const particle = document.createElement('div');
-        particle.style.cssText = `
-            position: absolute;
-            width: ${Math.random() * 4 + 1}px;
-            height: ${Math.random() * 4 + 1}px;
-            background: rgba(99, 102, 241, ${Math.random() * 0.5 + 0.2});
-            border-radius: 50%;
-            left: ${Math.random() * 100}%;
-            top: ${Math.random() * 100}%;
-            animation: particleFloat ${Math.random() * 10 + 10}s linear infinite;
-        `;
-        particles.appendChild(particle);
+    } catch (err) {
+        console.error(err);
+        alert("Error: " + err.message);
+        btn.innerText = originalText;
+        btn.disabled = false;
     }
 }
 
-// Add particle animation keyframes
-const styleSheet = document.createElement('style');
-styleSheet.textContent = `
-    @keyframes particleFloat {
-        0%, 100% { transform: translateY(0) translateX(0); opacity: 0; }
-        10% { opacity: 1; }
-        90% { opacity: 1; }
-        100% { transform: translateY(-100vh) translateX(${Math.random() * 100 - 50}px); opacity: 0; }
-    }
-`;
-document.head.appendChild(styleSheet);
-createParticles();
+// --- PAYMENT FUNCTION ---
+async function startPayment(studentId, name, email, phone) {
+    try {
+        const response = await fetch(FUNCTION_URL, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${supabaseKey}`
+            },
+            body: JSON.stringify({ action: 'create_order', amount: 250, studentId: studentId })
+        });
 
-// Phone number formatting
-const phoneInput = document.getElementById('phone');
-phoneInput.addEventListener('input', (e) => {
-    let value = e.target.value.replace(/\D/g, '');
-    if (value.length > 10) value = value.slice(0, 10);
-    if (value.length >= 5) {
-        value = value.slice(0, 5) + ' ' + value.slice(5);
+        if (!response.ok) {
+            const err = await response.json();
+            throw new Error(err.error || "Payment Order Failed");
+        }
+
+        const orderData = await response.json();
+
+        const options = {
+            "key": RAZORPAY_KEY_ID,
+            "amount": orderData.amount,
+            "currency": "INR",
+            "name": "BSP IIT Delhi",
+            "description": "Workshop Ticket",
+            "order_id": orderData.id,
+            "handler": async function (response) {
+                // Verify Payment
+                console.log("Verifying payment...");
+                document.querySelector('button[type="submit"]').innerText = "Verifying...";
+
+                try {
+                    const verifyRes = await fetch(FUNCTION_URL, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${supabaseKey}`
+                        },
+                        body: JSON.stringify({
+                            action: 'verify_payment',
+                            paymentId: response.razorpay_payment_id,
+                            orderId: response.razorpay_order_id,
+                            signature: response.razorpay_signature,
+                            studentId: studentId
+                        })
+                    });
+
+                    const result = await verifyRes.json();
+                    if (result.status === "success" || verifyRes.ok) {
+                        const ticketId = result.uniqueCode || "Confirmed";
+                        document.getElementById('modal-ticket-id').innerText = ticketId;
+                        document.getElementById('success-modal').style.display = 'flex'; // Adjusted to match HTML ID
+                        document.getElementById('success-modal').classList.add('active');
+                        alert("✅ Registration Successful!");
+                    } else {
+                        throw new Error(result.message || "Verification Failed");
+                    }
+                } catch (verifyErr) {
+                    alert("Verification Error: " + verifyErr.message);
+                } finally {
+                    document.querySelector('button[type="submit"]').innerText = "Register for Workshop →";
+                    document.querySelector('button[type="submit"]').disabled = false;
+                }
+            },
+            "prefill": { "name": name, "email": email, "contact": phone },
+            "theme": { "color": "#00b4d8" }
+        };
+
+        const rzp1 = new Razorpay(options);
+        rzp1.on('payment.failed', function (response) {
+            alert("Payment Failed: " + response.error.description);
+            document.querySelector('button[type="submit"]').innerText = "Register for Workshop →";
+            document.querySelector('button[type="submit"]').disabled = false;
+        });
+        rzp1.open();
+
+    } catch (err) {
+        alert("Payment Error: " + err.message);
+        document.querySelector('button[type="submit"]').innerText = "Register for Workshop →";
+        document.querySelector('button[type="submit"]').disabled = false;
     }
-    e.target.value = value;
+}
+
+// Init Modal Close logic just in case
+document.addEventListener('DOMContentLoaded', () => {
+    const closeBtn = document.getElementById('modal-close');
+    if (closeBtn) {
+        closeBtn.addEventListener('click', () => {
+            document.getElementById('success-modal').style.display = 'none';
+            window.location.reload();
+        });
+    }
 });
-
-console.log('🤖 WitBlox AI Workshop - Website loaded successfully!');
