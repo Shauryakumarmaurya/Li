@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Admin Scanner - BSP IIT Delhi</title>
+
+    <!-- Libraries -->
+    <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 50%, #16213e 100%);
+            min-height: 100vh;
+            color: #ffffff;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 500px;
+            margin: 0 auto;
+            padding: 20px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Header */
+        .header {
+            text-align: center;
+            padding: 20px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            margin-bottom: 20px;
+        }
+
+        .header h1 {
+            font-size: 1.5rem;
+            background: linear-gradient(135deg, #00b4d8 0%, #90e0ef 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 5px;
+        }
+
+        .header p {
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 0.9rem;
+        }
+
+        /* Stats Bar */
+        .stats-bar {
+            display: flex;
+            justify-content: space-around;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #00b4d8;
+        }
+
+        .stat-label {
+            font-size: 0.75rem;
+            color: rgba(255, 255, 255, 0.6);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* Scanner Container */
+        .scanner-wrapper {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #reader {
+            width: 100%;
+            max-width: 400px;
+            border-radius: 16px;
+            overflow: hidden;
+            border: 3px solid #00b4d8;
+            box-shadow: 0 0 30px rgba(0, 180, 216, 0.3);
+        }
+
+        /* Override html5-qrcode styles */
+        #reader__scan_region {
+            background: #1a1a2e !important;
+        }
+
+        #reader__dashboard_section {
+            background: #1a1a2e !important;
+            padding: 10px !important;
+        }
+
+        #reader__dashboard_section_csr button {
+            background: linear-gradient(135deg, #00b4d8 0%, #0077b6 100%) !important;
+            border: none !important;
+            border-radius: 8px !important;
+            padding: 12px 24px !important;
+            color: white !important;
+            font-weight: bold !important;
+            cursor: pointer !important;
+            margin: 5px !important;
+        }
+
+        #reader__dashboard_section_csr select {
+            background: #2a2a4e !important;
+            color: white !important;
+            border: 1px solid rgba(255, 255, 255, 0.2) !important;
+            border-radius: 8px !important;
+            padding: 8px !important;
+        }
+
+        .scanner-instructions {
+            text-align: center;
+            margin-top: 20px;
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.9rem;
+        }
+
+        /* Status Overlay */
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            cursor: pointer;
+        }
+
+        .overlay.active {
+            display: flex;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        .overlay-content {
+            background: rgba(20, 20, 40, 0.95);
+            border-radius: 24px;
+            padding: 40px;
+            text-align: center;
+            max-width: 90%;
+            width: 350px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+            animation: scaleIn 0.3s ease;
+        }
+
+        @keyframes scaleIn {
+            from {
+                transform: scale(0.9);
+                opacity: 0;
+            }
+
+            to {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        .overlay.success .overlay-content {
+            border: 3px solid #00c853;
+            box-shadow: 0 0 40px rgba(0, 200, 83, 0.3);
+        }
+
+        .overlay.error .overlay-content {
+            border: 3px solid #ff1744;
+            box-shadow: 0 0 40px rgba(255, 23, 68, 0.3);
+        }
+
+        .status-icon {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 0 auto 20px;
+            font-size: 40px;
+        }
+
+        .overlay.success .status-icon {
+            background: linear-gradient(135deg, #00c853 0%, #69f0ae 100%);
+        }
+
+        .overlay.error .status-icon {
+            background: linear-gradient(135deg, #ff1744 0%, #ff5252 100%);
+        }
+
+        .overlay-title {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+
+        .overlay.success .overlay-title {
+            color: #00c853;
+        }
+
+        .overlay.error .overlay-title {
+            color: #ff1744;
+        }
+
+        .student-info {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            padding: 15px;
+            margin-top: 15px;
+        }
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .info-row:last-child {
+            border-bottom: none;
+        }
+
+        .info-label {
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 0.85rem;
+        }
+
+        .info-value {
+            font-weight: bold;
+            color: #ffffff;
+        }
+
+        .tap-hint {
+            margin-top: 25px;
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 0.85rem;
+        }
+
+        /* Loading State */
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid rgba(0, 180, 216, 0.2);
+            border-top-color: #00b4d8;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* Audio elements hidden */
+        audio {
+            display: none;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>🎫 Admin Scanner</h1>
+            <p>BSP IIT Delhi Workshop</p>
+        </div>
+
+        <!-- Stats Bar -->
+        <div class="stats-bar">
+            <div class="stat-item">
+                <div class="stat-value" id="checked-count">-</div>
+                <div class="stat-label">Checked In</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value" id="total-count">-</div>
+                <div class="stat-label">Total</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value" id="remaining-count">-</div>
+                <div class="stat-label">Remaining</div>
+            </div>
+        </div>
+
+        <!-- Scanner -->
+        <div class="scanner-wrapper">
+            <div id="reader"></div>
+            <p class="scanner-instructions">Point camera at barcode or QR code</p>
+        </div>
+    </div>
+
+    <!-- Success Overlay -->
+    <div class="overlay success" id="success-overlay" onclick="closeOverlay()">
+        <div class="overlay-content">
+            <div class="status-icon">✓</div>
+            <div class="overlay-title">Welcome!</div>
+            <div class="student-info">
+                <div class="info-row">
+                    <span class="info-label">Name</span>
+                    <span class="info-value" id="success-name">-</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Class</span>
+                    <span class="info-value" id="success-class">-</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">School</span>
+                    <span class="info-value" id="success-school">-</span>
+                </div>
+            </div>
+            <p class="tap-hint">Tap anywhere to continue</p>
+        </div>
+    </div>
+
+    <!-- Error Overlay (Already Used) -->
+    <div class="overlay error" id="used-overlay" onclick="closeOverlay()">
+        <div class="overlay-content">
+            <div class="status-icon">✗</div>
+            <div class="overlay-title">Already Used!</div>
+            <div class="student-info">
+                <div class="info-row">
+                    <span class="info-label">Name</span>
+                    <span class="info-value" id="used-name">-</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">School</span>
+                    <span class="info-value" id="used-school">-</span>
+                </div>
+            </div>
+            <p class="tap-hint">Tap anywhere to continue</p>
+        </div>
+    </div>
+
+    <!-- Error Overlay (Invalid) -->
+    <div class="overlay error" id="invalid-overlay" onclick="closeOverlay()">
+        <div class="overlay-content">
+            <div class="status-icon">✗</div>
+            <div class="overlay-title">Invalid Ticket</div>
+            <p style="color: rgba(255,255,255,0.7); margin-top: 10px;">This code was not found in the database.</p>
+            <p class="tap-hint">Tap anywhere to continue</p>
+        </div>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div class="overlay" id="loading-overlay">
+        <div class="overlay-content">
+            <div class="loading-spinner"></div>
+            <p style="color: rgba(255,255,255,0.7);">Checking ticket...</p>
+        </div>
+    </div>
+
+    <!-- Audio Elements for feedback sounds -->
+    <audio id="success-sound" preload="auto">
+        <source src="https://cdn.freesound.org/previews/320/320775_5260872-lq.mp3" type="audio/mpeg">
+    </audio>
+    <audio id="error-sound" preload="auto">
+        <source src="https://cdn.freesound.org/previews/142/142608_1840739-lq.mp3" type="audio/mpeg">
+    </audio>
+
+    <script>
+        // --- CONFIGURATION ---
+        // Replace with your actual Supabase credentials
+        const SUPABASE_URL = 'https://gucbamtgrxaqftkrkjzn.supabase.co';
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imd1Y2JhbXRncnhhcWZ0a3JranpuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njk1MzU0MzcsImV4cCI6MjA4NTExMTQzN30.dE93HpYqAWqFqwHvQXFXQj9l7xPHcngIk-McsZHzIok';
+
+        // Initialize Supabase
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+        // Scanner instance
+        let html5QrcodeScanner = null;
+        let isProcessing = false;
+
+        // Audio elements
+        const successSound = document.getElementById('success-sound');
+        const errorSound = document.getElementById('error-sound');
+
+        // --- INITIALIZE SCANNER ---
+        function initScanner() {
+            html5QrcodeScanner = new Html5QrcodeScanner(
+                "reader",
+                {
+                    fps: 10,
+                    qrbox: { width: 250, height: 150 },
+                    formatsToSupport: [
+                        Html5QrcodeSupportedFormats.QR_CODE,
+                        Html5QrcodeSupportedFormats.CODE_128,
+                        Html5QrcodeSupportedFormats.CODE_39,
+                        Html5QrcodeSupportedFormats.EAN_13,
+                        Html5QrcodeSupportedFormats.EAN_8
+                    ],
+                    rememberLastUsedCamera: true,
+                    showTorchButtonIfSupported: true
+                }
+            );
+
+            html5QrcodeScanner.render(onScanSuccess, onScanError);
+        }
+
+        // --- SCAN SUCCESS HANDLER ---
+        async function onScanSuccess(decodedText, decodedResult) {
+            // Prevent multiple simultaneous scans
+            if (isProcessing) return;
+            isProcessing = true;
+
+            console.log("Scanned:", decodedText);
+
+            // Show loading overlay
+            showOverlay('loading');
+
+            try {
+                // Query database for this unique_code
+                const { data, error } = await supabase
+                    .from('registrations')
+                    .select('id, student_name, school_name, class_grade, checked_in')
+                    .eq('unique_code', decodedText)
+                    .single();
+
+                if (error || !data) {
+                    // SCENARIO A: Invalid ticket
+                    hideOverlay('loading');
+                    showOverlay('invalid');
+                    playSound('error');
+                    return;
+                }
+
+                if (data.checked_in === true) {
+                    // SCENARIO B: Already used
+                    document.getElementById('used-name').textContent = data.student_name || '-';
+                    document.getElementById('used-school').textContent = data.school_name || '-';
+
+                    hideOverlay('loading');
+                    showOverlay('used');
+                    playSound('error');
+                    return;
+                }
+
+                // SCENARIO C: Valid and new - update database
+                const { error: updateError } = await supabase
+                    .from('registrations')
+                    .update({ checked_in: true })
+                    .eq('id', data.id);
+
+                if (updateError) {
+                    console.error('Update error:', updateError);
+                    hideOverlay('loading');
+                    showOverlay('invalid');
+                    playSound('error');
+                    return;
+                }
+
+                // Show success!
+                document.getElementById('success-name').textContent = data.student_name || '-';
+                document.getElementById('success-class').textContent = data.class_grade || '-';
+                document.getElementById('success-school').textContent = data.school_name || '-';
+
+                hideOverlay('loading');
+                showOverlay('success');
+                playSound('success');
+
+                // Refresh stats
+                await loadStats();
+
+            } catch (err) {
+                console.error('Scan processing error:', err);
+                hideOverlay('loading');
+                showOverlay('invalid');
+                playSound('error');
+            }
+        }
+
+        function onScanError(errorMessage) {
+            // Ignore continuous scan errors (they're normal)
+        }
+
+        // --- OVERLAY FUNCTIONS ---
+        function showOverlay(type) {
+            document.getElementById(`${type}-overlay`).classList.add('active');
+        }
+
+        function hideOverlay(type) {
+            document.getElementById(`${type}-overlay`).classList.remove('active');
+        }
+
+        function closeOverlay() {
+            // Close all overlays
+            document.querySelectorAll('.overlay').forEach(overlay => {
+                overlay.classList.remove('active');
+            });
+
+            // Reset processing flag and restart scanner
+            isProcessing = false;
+        }
+
+        // --- AUDIO FUNCTIONS ---
+        function playSound(type) {
+            try {
+                const sound = type === 'success' ? successSound : errorSound;
+                sound.currentTime = 0;
+                sound.play().catch(e => console.log('Audio play failed:', e));
+            } catch (e) {
+                console.log('Sound error:', e);
+            }
+        }
+
+        // --- STATS FUNCTIONS ---
+        async function loadStats() {
+            try {
+                // Get total registrations with successful payment
+                const { count: totalCount, error: totalError } = await supabase
+                    .from('registrations')
+                    .select('*', { count: 'exact', head: true })
+                    .eq('payment_status', 'success');
+
+                // Get checked-in count
+                const { count: checkedCount, error: checkedError } = await supabase
+                    .from('registrations')
+                    .select('*', { count: 'exact', head: true })
+                    .eq('payment_status', 'success')
+                    .eq('checked_in', true);
+
+                if (totalError || checkedError) {
+                    console.error('Stats error:', totalError || checkedError);
+                    return;
+                }
+
+                const total = totalCount || 0;
+                const checked = checkedCount || 0;
+                const remaining = total - checked;
+
+                document.getElementById('total-count').textContent = total;
+                document.getElementById('checked-count').textContent = checked;
+                document.getElementById('remaining-count').textContent = remaining;
+
+            } catch (err) {
+                console.error('Stats load error:', err);
+            }
+        }
+
+        // --- INITIALIZATION ---
+        document.addEventListener('DOMContentLoaded', async () => {
+            // Load initial stats
+            await loadStats();
+
+            // Initialize scanner
+            initScanner();
+
+            // Preload sounds
+            successSound.load();
+            errorSound.load();
+        });
+    </script>
+</body>
+
+</html>
