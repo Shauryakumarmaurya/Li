@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Scanner</title>
-    <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
+    <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
     <style>
@@ -128,132 +128,165 @@
     <div id="reader"></div>
 
     <div>
-        <button id="start-btn" class="btn btn-start" onclick="startScanner()">⚡ Start Camera</button>
-        <button id="stop-btn" class="btn btn-stop" onclick="stopScanner()">Stop</button>
+        <button id="start-btn" class="btn btn-start">⚡ Start Camera</button>
+        <button id="stop-btn" class="btn btn-stop">Stop</button>
     </div>
 
     <div id="debug-log"></div>
 
-    <div id="status-overlay" onclick="closeOverlay()">
+    <div id="status-overlay">
         <div class="status-content" id="status-box">
             <span class="status-icon" id="icon">✅</span>
             <h2 id="title">Welcome!</h2>
             <p id="desc">Student Name</p>
-            <button class="btn" onclick="closeOverlay()">Scan Next</button>
+            <button class="btn" id="scan-next-btn">Scan Next</button>
         </div>
     </div>
 
     <script>
-        // --- CONFIGURATION ---
-        const supabaseUrl = 'https://gucbamtgrxaqftkrkjzn.supabase.co';
-        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imd1Y2JhbXRncnhhcWZ0a3JranpuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njk1MzU0MzcsImV4cCI6MjA4NTExMTQzN30.dE93HpYqAWqFqwHvQXFXQj9l7xPHcngIk-McsZHzIok';
-        const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+        // Wait for DOM to be ready
+        document.addEventListener('DOMContentLoaded', function () {
+            // --- CONFIGURATION ---
+            var supabaseUrl = 'https://gucbamtgrxaqftkrkjzn.supabase.co';
+            var supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imd1Y2JhbXRncnhhcWZ0a3JranpuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njk1MzU0MzcsImV4cCI6MjA4NTExMTQzN30.dE93HpYqAWqFqwHvQXFXQj9l7xPHcngIk-McsZHzIok';
+            var supabaseClient = window.supabase.createClient(supabaseUrl, supabaseKey);
 
-        let html5QrcodeScanner;
+            var html5QrcodeScanner = null;
+            var debugLog = document.getElementById('debug-log');
+            var startBtn = document.getElementById('start-btn');
+            var stopBtn = document.getElementById('stop-btn');
+            var statusOverlay = document.getElementById('status-overlay');
 
-        // Helper to show errors on screen
-        function log(msg) {
-            document.getElementById('debug-log').innerText = msg;
-        }
-
-        function startScanner() {
-            document.getElementById('start-btn').style.display = 'none';
-            document.getElementById('stop-btn').style.display = 'inline-block';
-            log("Initializing camera...");
-
-            html5QrcodeScanner = new Html5QrcodeScanner(
-                "reader",
-                {
-                    fps: 10,
-                    qrbox: { width: 250, height: 250 }
-                },
-                /* verbose= */ false
-            );
-
-            html5QrcodeScanner.render(onScanSuccess, onScanFailure);
-        }
-
-        function stopScanner() {
-            if (html5QrcodeScanner) {
-                html5QrcodeScanner.clear().then(() => {
-                    document.getElementById('start-btn').style.display = 'inline-block';
-                    document.getElementById('stop-btn').style.display = 'none';
-                    log("Camera stopped.");
-                }).catch(err => log("Stop failed: " + err));
+            // Helper to show messages on screen
+            function log(msg) {
+                debugLog.innerText = msg;
+                console.log(msg);
             }
-        }
 
-        function onScanFailure(error) {
-            // Only log critical errors, ignore "no code found" frame noise
-            if (!error.includes("No MultiFormat Readers")) {
-                // console.warn(error);
+            log('Ready. Click "Start Camera" to begin.');
+
+            // Start Scanner
+            function startScanner() {
+                startBtn.style.display = 'none';
+                stopBtn.style.display = 'inline-block';
+                log("Initializing camera...");
+
+                try {
+                    html5QrcodeScanner = new Html5QrcodeScanner(
+                        "reader",
+                        {
+                            fps: 10,
+                            qrbox: { width: 250, height: 250 },
+                            rememberLastUsedCamera: true
+                        },
+                        false
+                    );
+
+                    html5QrcodeScanner.render(onScanSuccess, onScanFailure);
+                    log("Camera started. Point at a barcode.");
+                } catch (err) {
+                    log("Camera error: " + err.message);
+                }
             }
-        }
 
-        function onScanSuccess(decodedText, decodedResult) {
-            console.log(`Scan result: ${decodedText}`);
-            log("Processing: " + decodedText);
+            // Stop Scanner
+            function stopScanner() {
+                if (html5QrcodeScanner) {
+                    html5QrcodeScanner.clear().then(function () {
+                        startBtn.style.display = 'inline-block';
+                        stopBtn.style.display = 'none';
+                        log("Camera stopped.");
+                    }).catch(function (err) {
+                        log("Stop failed: " + err);
+                    });
+                }
+            }
 
-            // Pause scanning while checking DB
-            html5QrcodeScanner.pause();
+            function onScanFailure(error) {
+                // Ignore frame noise
+            }
 
-            checkTicket(decodedText);
-        }
+            function onScanSuccess(decodedText, decodedResult) {
+                console.log("Scan result: " + decodedText);
+                log("Processing: " + decodedText);
 
-        async function checkTicket(code) {
-            try {
-                // 1. Search Database
-                const { data, error } = await supabase
-                    .from('registrations')
-                    .select('*')
-                    .eq('unique_code', code)
-                    .single();
-
-                if (error || !data) {
-                    showStatus("error", "INVALID TICKET", "Code not found in system.");
-                    return;
+                // Pause scanning while checking DB
+                if (html5QrcodeScanner) {
+                    html5QrcodeScanner.pause();
                 }
 
-                // 2. Check Logic
-                if (data.checked_in === true) {
-                    showStatus("error", "ALREADY USED ❌", `<b>${data.student_name}</b> has already entered.`);
-                } else {
-                    // 3. Mark Checked In
-                    await supabase
+                checkTicket(decodedText);
+            }
+
+            async function checkTicket(code) {
+                try {
+                    // 1. Search Database
+                    var result = await supabaseClient
                         .from('registrations')
-                        .update({ checked_in: true })
-                        .eq('id', data.id);
+                        .select('*')
+                        .eq('unique_code', code)
+                        .single();
 
-                    showStatus("success", "WELCOME! ✅", `Student: <b>${data.student_name}</b><br>Class: ${data.class_grade}`);
+                    var data = result.data;
+                    var error = result.error;
+
+                    if (error || !data) {
+                        showStatus("error", "INVALID TICKET", "Code not found in system.");
+                        return;
+                    }
+
+                    // 2. Check Logic
+                    if (data.checked_in === true) {
+                        showStatus("error", "ALREADY USED ❌", "<b>" + data.student_name + "</b> has already entered.");
+                    } else {
+                        // 3. Mark Checked In
+                        await supabaseClient
+                            .from('registrations')
+                            .update({ checked_in: true })
+                            .eq('id', data.id);
+
+                        showStatus("success", "WELCOME! ✅", "Student: <b>" + data.student_name + "</b><br>Class: " + data.class_grade);
+                    }
+
+                } catch (err) {
+                    showStatus("error", "Error", err.message);
                 }
-
-            } catch (err) {
-                showStatus("error", "Error", err.message);
             }
-        }
 
-        function showStatus(type, title, desc) {
-            const overlay = document.getElementById('status-overlay');
-            const icon = document.getElementById('icon');
+            function showStatus(type, title, desc) {
+                var icon = document.getElementById('icon');
 
-            overlay.style.display = 'flex';
-            if (type === 'success') {
-                overlay.className = 'success-bg';
-                icon.innerText = "✅";
-            } else {
-                overlay.className = 'error-bg';
-                icon.innerText = "🛑";
+                statusOverlay.style.display = 'flex';
+                if (type === 'success') {
+                    statusOverlay.className = 'success-bg';
+                    icon.innerText = "✅";
+                } else {
+                    statusOverlay.className = 'error-bg';
+                    icon.innerText = "🛑";
+                }
+                document.getElementById('title').innerHTML = title;
+                document.getElementById('desc').innerHTML = desc;
             }
-            document.getElementById('title').innerHTML = title;
-            document.getElementById('desc').innerHTML = desc;
-        }
 
-        function closeOverlay() {
-            document.getElementById('status-overlay').style.display = 'none';
-            // Resume scanning
-            if (html5QrcodeScanner) html5QrcodeScanner.resume();
-            log("Ready to scan...");
-        }
+            function closeOverlay() {
+                statusOverlay.style.display = 'none';
+                statusOverlay.className = '';
+                // Resume scanning
+                if (html5QrcodeScanner) {
+                    html5QrcodeScanner.resume();
+                }
+                log("Ready to scan...");
+            }
+
+            // Event Listeners
+            startBtn.addEventListener('click', startScanner);
+            stopBtn.addEventListener('click', stopScanner);
+            statusOverlay.addEventListener('click', closeOverlay);
+            document.getElementById('scan-next-btn').addEventListener('click', function (e) {
+                e.stopPropagation();
+                closeOverlay();
+            });
+        });
     </script>
 </body>
 
