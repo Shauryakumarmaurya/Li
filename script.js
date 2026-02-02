@@ -1,7 +1,8 @@
 // --- CONFIGURATION ---
-const supabaseUrl = 'https://ooqdipxxtiqmkwbpgmtn.supabase.co';
-const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9vcWRpcHh4dGlxbWt3YnBnbXRuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njg0MDE3MTcsImV4cCI6MjA4Mzk3NzcxN30.NNd4TXZC6RhVucT3LxfecNu2AXofmLDEIUipj9RmxXM';
-const FUNCTION_URL = `${supabaseUrl}/functions/v1/payment-handler`;
+const supabaseUrl = 'https://gucbamtgrxaqftkrkjzn.supabase.co';
+const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imd1Y2JhbXRncnhhcWZ0a3JranpuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njk1MzU0MzcsImV4cCI6MjA4NTExMTQzN30.dE93HpYqAWqFqwHvQXFXQj9l7xPHcngIk-McsZHzIok';
+// Edge Function is now deployed on the new project
+const FUNCTION_URL = 'https://gucbamtgrxaqftkrkjzn.supabase.co/functions/v1/payment-handler';
 const RAZORPAY_KEY_ID = "rzp_live_SBHWG9Cel0iWs5";
 
 // Initialize Supabase
@@ -38,8 +39,19 @@ async function handleRegister(event) {
             throw new Error("Please fill in all fields.");
         }
 
+
         // 2. Insert into Supabase (USING CORRECT COLUMN NAMES)
-        console.log("3. Saving User...");
+        console.log("3. Saving User to Supabase...");
+        console.log("Data being sent:", {
+            student_name: name,
+            email: email,
+            phone_number: phone,
+            city: city,
+            class_grade: studentClass,
+            school_name: schoolName,
+            payment_status: 'pending'
+        });
+
         const { data, error } = await supabaseClient
             .from('registrations')
             .insert([{
@@ -54,10 +66,13 @@ async function handleRegister(event) {
             .select()
             .single();
 
+        console.log("4. Supabase Response - Data:", data);
+        console.log("4. Supabase Response - Error:", error);
+
         if (error) throw error;
 
         // 3. Start Payment with the ID we just created
-        console.log("User saved with ID:", data.id);
+        console.log("5. User saved successfully with ID:", data.id);
         await startPayment(data.id, name, email, phone);
 
     } catch (err) {
@@ -118,10 +133,30 @@ async function startPayment(studentId, name, email, phone) {
 
                     const result = await verifyRes.json();
                     if (result.status === "success" || verifyRes.ok) {
-                        const ticketId = result.uniqueCode || "Confirmed";
+                        // 1. Get the Ticket ID
+                        const ticketId = result.uniqueCode || `BSP-2026-${studentId}`;
+
+                        // 2. Show Text ID
                         document.getElementById('modal-ticket-id').innerText = ticketId;
-                        document.getElementById('success-modal').style.display = 'flex'; // Adjusted to match HTML ID
-                        document.getElementById('success-modal').classList.add('active');
+
+                        // 3. GENERATE BARCODE
+                        try {
+                            JsBarcode("#barcode", ticketId, {
+                                format: "CODE128",
+                                lineColor: "#000000",
+                                width: 2,
+                                height: 50,
+                                displayValue: true // Shows text below bars
+                            });
+                        } catch (e) {
+                            console.error("Barcode error:", e);
+                        }
+
+                        // 4. Show Modal
+                        const modal = document.getElementById('success-modal');
+                        modal.style.display = 'flex';
+                        modal.classList.add('active');
+
                         alert("✅ Registration Successful!");
                     } else {
                         throw new Error(result.message || "Verification Failed");

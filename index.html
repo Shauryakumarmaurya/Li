@@ -436,17 +436,25 @@
     </footer>
 
     <div class="modal" id="success-modal">
-        <div class="modal-content">
+        <div class="modal-content" style="text-align: center;">
             <div class="modal-icon">✅</div>
             <h3>Registration Successful!</h3>
-            <p>Your Ticket ID: <strong id="modal-ticket-id">generating...</strong></p>
-            <p>Check your email for details.</p>
-            <button class="btn btn-primary" id="modal-close">Got it!</button>
+
+            <p>Your Ticket ID:</p>
+            <strong id="modal-ticket-id" style="font-size: 1.2rem; color: #7b2cbf;">...</strong>
+
+            <br><br>
+
+            <svg id="barcode"></svg>
+
+            <p style="font-size: 0.9rem; color: #666; margin-top: 10px;">Take a screenshot of this ticket.</p>
+            <button class="btn btn-primary" id="modal-close" style="margin-top: 15px;">Got it!</button>
         </div>
     </div>
 
     <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.0/dist/JsBarcode.all.min.js"></script>
     <script src="script.js"></script>
     <script>
         // DOM loaded check already in script.js if needed or we rely on defer/bottom placement

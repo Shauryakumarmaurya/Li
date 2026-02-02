@@ -11,14 +11,14 @@ import { crypto } from "https://deno.land/std@0.177.0/crypto/mod.ts";
 console.log("Payment Handler Function Initialized")
 
 serve(async (req) => {
+    const corsHeaders = {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+    }
+
     // CORS implementation
     if (req.method === 'OPTIONS') {
-        return new Response('ok', {
-            headers: {
-                'Access-Control-Allow-Origin': '*',
-                'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-            }
-        })
+        return new Response('ok', { headers: corsHeaders })
     }
 
     try {
@@ -44,13 +44,13 @@ serve(async (req) => {
             const options = {
                 amount: amount * 100, // Razorpay expects amount in paise
                 currency: "INR",
-                receipt: `rcpt_${studentId.slice(0, 5)}_${Date.now()}`,
+                receipt: `rcpt_${String(studentId).slice(0, 5)}_${Date.now()}`,
             };
 
             const order = await instance.orders.create(options);
 
             return new Response(JSON.stringify(order), {
-                headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
+                headers: { ...corsHeaders, 'Content-Type': 'application/json' },
             })
         }
 
@@ -98,7 +98,7 @@ serve(async (req) => {
             } else {
                 return new Response(JSON.stringify({ status: 'failure', message: 'Invalid signature' }), {
                     status: 400,
-                    headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
+                    headers: { ...corsHeaders, 'Content-Type': 'application/json' },
                 })
             }
         }
@@ -108,7 +108,7 @@ serve(async (req) => {
     } catch (error) {
         return new Response(JSON.stringify({ error: error.message }), {
             status: 400,
-            headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         })
     }
 })
