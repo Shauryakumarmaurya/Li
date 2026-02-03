@@ -452,6 +452,190 @@
         </div>
     </div>
 
+    <!-- Support Button -->
+    <div class="support-fab" id="support-fab" onclick="toggleSupportPopup()">
+        <span>📞</span>
+    </div>
+
+    <div class="support-popup" id="support-popup">
+        <div class="support-popup-header">
+            <span>Need Help?</span>
+            <button class="support-close" onclick="toggleSupportPopup()">✕</button>
+        </div>
+        <div class="support-popup-content">
+            <a href="tel:9352992950" class="support-contact">
+                <span class="support-icon">📞</span>
+                <div class="support-info">
+                    <span class="support-name">Nivedita</span>
+                    <span class="support-number">9352992950</span>
+                </div>
+            </a>
+            <a href="tel:9509443960" class="support-contact">
+                <span class="support-icon">📞</span>
+                <div class="support-info">
+                    <span class="support-name">Monika</span>
+                    <span class="support-number">9509443960</span>
+                </div>
+            </a>
+        </div>
+    </div>
+
+    <style>
+        /* Support FAB Button */
+        .support-fab {
+            position: fixed;
+            bottom: 25px;
+            right: 25px;
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #7b2cbf, #00b4d8);
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            box-shadow: 0 4px 20px rgba(123, 44, 191, 0.4);
+            z-index: 999;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            animation: pulse-support 2s infinite;
+        }
+
+        .support-fab:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 30px rgba(123, 44, 191, 0.6);
+        }
+
+        .support-fab span {
+            font-size: 1.8rem;
+        }
+
+        @keyframes pulse-support {
+
+            0%,
+            100% {
+                box-shadow: 0 4px 20px rgba(123, 44, 191, 0.4);
+            }
+
+            50% {
+                box-shadow: 0 4px 30px rgba(0, 180, 216, 0.6);
+            }
+        }
+
+        /* Support Popup */
+        .support-popup {
+            position: fixed;
+            bottom: 100px;
+            right: 25px;
+            width: 280px;
+            background: rgba(15, 16, 32, 0.98);
+            border-radius: 16px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+            z-index: 998;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(20px);
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            overflow: hidden;
+        }
+
+        .support-popup.active {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        .support-popup-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 20px;
+            background: linear-gradient(135deg, rgba(123, 44, 191, 0.3), rgba(0, 180, 216, 0.3));
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .support-popup-header span {
+            font-weight: 600;
+            color: #fff;
+            font-size: 1rem;
+        }
+
+        .support-close {
+            background: none;
+            border: none;
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: color 0.3s;
+        }
+
+        .support-close:hover {
+            color: #ff4d4d;
+        }
+
+        .support-popup-content {
+            padding: 15px;
+        }
+
+        .support-contact {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 12px 15px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            margin-bottom: 10px;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .support-contact:last-child {
+            margin-bottom: 0;
+        }
+
+        .support-contact:hover {
+            background: rgba(0, 180, 216, 0.2);
+            transform: translateX(5px);
+        }
+
+        .support-icon {
+            font-size: 1.5rem;
+        }
+
+        .support-info {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .support-name {
+            color: #fff;
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
+
+        .support-number {
+            color: #00b4d8;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+    </style>
+
+    <script>
+        function toggleSupportPopup() {
+            const popup = document.getElementById('support-popup');
+            popup.classList.toggle('active');
+        }
+
+        // Close popup when clicking outside
+        document.addEventListener('click', function (e) {
+            const popup = document.getElementById('support-popup');
+            const fab = document.getElementById('support-fab');
+            if (!popup.contains(e.target) && !fab.contains(e.target)) {
+                popup.classList.remove('active');
+            }
+        });
+    </script>
+
     <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.0/dist/JsBarcode.all.min.js"></script>
