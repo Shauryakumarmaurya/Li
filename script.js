@@ -92,8 +92,8 @@ async function startPayment(studentId, name, email, phone) {
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${supabaseKey}`
             },
-            // Change 250 to 1
-            body: JSON.stringify({ action: 'create_order', amount: 1, studentId: studentId })
+            // Registration Fee: 250 INR
+            body: JSON.stringify({ action: 'create_order', amount: 250, studentId: studentId })
         });
 
         if (!response.ok) {
