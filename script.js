@@ -230,8 +230,7 @@ async function handleTeacherRegister(event) {
                 school_name: schoolName,
                 city: 'N/A',
                 class_grade: 'Teacher',   // Marking as Teacher
-                payment_status: 'free',   // Free for teachers
-                role: 'teacher'           // Role identifier
+                payment_status: 'free'    // Free for teachers
             }])
             .select()
             .single();
