@@ -197,3 +197,79 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 });
+
+// --- TEACHER REGISTRATION (No Payment) ---
+async function handleTeacherRegister(event) {
+    event.preventDefault();
+    console.log("Teacher Registration Started");
+
+    const btn = event.target.querySelector('button[type="submit"]');
+    btn.innerText = "Processing...";
+    btn.disabled = true;
+
+    try {
+        // 1. Get Data from HTML
+        const name = document.getElementById('teacher-name').value;
+        const schoolName = document.getElementById('teacher-school-name').value;
+        const email = document.getElementById('teacher-email').value;
+        const phone = document.getElementById('teacher-phone').value;
+
+        if (!name || !email || !phone || !schoolName) {
+            throw new Error("Please fill in all fields.");
+        }
+
+        // 2. Insert into Supabase (Teacher - No payment required)
+        console.log("Saving Teacher to Supabase...");
+
+        const { data, error } = await supabaseClient
+            .from('registrations')
+            .insert([{
+                student_name: name,       // Using same column for teacher name
+                email: email,
+                phone_number: phone,
+                school_name: schoolName,
+                city: 'N/A',
+                class_grade: 'Teacher',   // Marking as Teacher
+                payment_status: 'free',   // Free for teachers
+                role: 'teacher'           // Role identifier
+            }])
+            .select()
+            .single();
+
+        console.log("Supabase Response - Data:", data);
+        console.log("Supabase Response - Error:", error);
+
+        if (error) throw error;
+
+        // 3. Generate Ticket ID for Teacher
+        const ticketId = `BSP-TCH-2026-${data.id}`;
+
+        // 4. Show Success Modal with Ticket
+        document.getElementById('modal-ticket-id').innerText = ticketId;
+
+        try {
+            JsBarcode("#barcode", ticketId, {
+                format: "CODE128",
+                lineColor: "#000000",
+                width: 2,
+                height: 50,
+                displayValue: true
+            });
+        } catch (e) {
+            console.error("Barcode error:", e);
+        }
+
+        const modal = document.getElementById('success-modal');
+        modal.style.display = 'flex';
+        modal.classList.add('active');
+
+        alert("✅ Teacher Registration Successful!");
+
+    } catch (err) {
+        console.error(err);
+        alert("Error: " + err.message);
+    } finally {
+        btn.innerText = "Register as Teacher (Free) →";
+        btn.disabled = false;
+    }
+}

@@ -35,6 +35,7 @@
                 <li><a href="#learn" class="nav-link">Learn</a></li>
                 <li><a href="#demo" class="nav-link">Demo</a></li>
                 <li><a href="#prizes" class="nav-link">Prizes</a></li>
+                <li><a href="#teacher-register" class="nav-link" style="color: #00b4d8;">For Teachers</a></li>
                 <li><a href="#register" class="nav-link nav-cta"
                         style="background: linear-gradient(135deg, #7b2cbf, #00b4d8); padding: 8px 20px; border-radius: 20px; color: #ffffff !important;">Register
                         Now</a></li>
@@ -429,6 +430,45 @@
                     <div class="form-group"><label for="email">Email</label><input type="email" id="email" name="email"
                             required></div>
                     <button type="submit" class="btn btn-primary btn-full">Register for Workshop →</button>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <!-- Teacher Registration Section -->
+    <section class="section register teacher-register" id="teacher-register">
+        <div class="container">
+            <div class="register-wrapper">
+                <div class="register-info">
+                    <span class="section-tag"
+                        style="background: linear-gradient(135deg, rgba(0, 180, 216, 0.2), rgba(123, 44, 191, 0.2)); color: #00b4d8;">For
+                        Teachers</span>
+                    <h2 class="section-title">Teacher <span class="gradient-text">Registration</span></h2>
+                    <ul class="benefits">
+                        <li>✓ Complimentary Entry for Teachers</li>
+                        <li>✓ Accompany Your Students</li>
+                        <li>✓ Certificate of Participation</li>
+                        <li>✓ Learn Alongside Students</li>
+                    </ul>
+                    <div class="teacher-note"
+                        style="margin-top: 20px; padding: 15px; background: rgba(0, 180, 216, 0.1); border-radius: 12px; border-left: 3px solid #00b4d8;">
+                        <p style="color: rgba(255, 255, 255, 0.9); margin: 0; font-size: 0.95rem;">
+                            <strong>🎁 Free Registration</strong> for teachers accompanying students to the workshop.
+                        </p>
+                    </div>
+                </div>
+                <form class="register-form" id="teacher-register-form" onsubmit="handleTeacherRegister(event)">
+                    <div class="form-group"><label for="teacher-name">Teacher Name</label><input type="text"
+                            id="teacher-name" name="teacherName" required></div>
+                    <div class="form-group"><label for="teacher-school-name">School Name</label><input type="text"
+                            id="teacher-school-name" name="schoolName" required></div>
+                    <div class="form-group"><label for="teacher-phone">Phone Number</label><input type="tel"
+                            id="teacher-phone" name="phone" required></div>
+                    <div class="form-group"><label for="teacher-email">Email</label><input type="email"
+                            id="teacher-email" name="email" required></div>
+                    <button type="submit" class="btn btn-primary btn-full"
+                        style="background: linear-gradient(135deg, #00b4d8, #7b2cbf);">Register as Teacher (Free)
+                        →</button>
                 </form>
             </div>
         </div>
